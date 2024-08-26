@@ -79,9 +79,9 @@ class ReservationController extends Controller
         return redirect('/dashboard')->with('msg-error', 'Apenas administradores podem realizar a devolução de livros.');
     }
 
-    $reservation = Reservation::findOrFail($id);
+    // Encontra a reserva pelo ID
+    $reservation = Reservation::where('books_id', $id)->first();
 
-    // Verifica se a reserva existe e se o livro está realmente emprestado
     if ($reservation) {
         $book = Book::findOrFail($reservation->books_id);
 
@@ -100,6 +100,7 @@ class ReservationController extends Controller
         return redirect('/dashboard')->with('msg-error', 'Reserva não encontrada.');
     }
 }
+
 
     
 }
