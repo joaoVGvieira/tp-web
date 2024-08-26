@@ -12,8 +12,7 @@
                 @csrf
                 <div class="form-group">
                     <input type="hidden" name="books_id" value="{{ $livro->id }}">
-                    <label for="date">Escolha a data de retorno:</label>
-                    <input type="date" id="date" name="date" class="form-control">
+                    <!-- O campo de data foi removido -->
                 </div>
                 <button type="submit" class="btn btn-secondary">Confirmar</button>
             </form>

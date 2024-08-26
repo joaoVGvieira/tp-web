@@ -21,13 +21,31 @@ class ReservationController extends Controller
         $reservation = new Reservation;
         $reservation->users_id = auth()->user()->id;
         $reservation->books_id = $request->books_id;
+
+        // Data atual
         $currentDate = new DateTime();
-        $returnDate = new Datetime($request->date);
+
+        // Adiciona 7 dias à data atual
+        $returnDate = clone $currentDate;
+        $returnDate->modify('+7 days');
+
+        // Verifica se a data de retorno cai em um sábado ou domingo
+        $dayOfWeek = $returnDate->format('N'); // 6 = Sábado, 7 = Domingo
+        if ($dayOfWeek == 6) {
+            // Se for sábado, adiciona 2 dias para ir para segunda-feira
+            $returnDate->modify('+2 days');
+        } elseif ($dayOfWeek == 7) {
+            // Se for domingo, adiciona 1 dia para ir para segunda-feira
+            $returnDate->modify('+1 day');
+        }
+
+        // Atribui a data de retorno ajustada à reserva
+        $reservation->return_date = $returnDate->format('Y-m-d');
+
+        // Verifica se a data de retorno não está no passado (no caso de manipulação da data)
         if ($returnDate < $currentDate) {
             return redirect('/livros/reserva/' . $reservation->books_id)->with('msg-error', 'Você não pode realizar uma reserva para uma data passada.');
         }
-
-        $reservation->return_date = $request->date;
 
         if ($reservation->save()) {
             Book::where('id', $request->books_id)
@@ -36,6 +54,7 @@ class ReservationController extends Controller
         }
 
         return redirect('/livros')->with('msg-error', 'Algo de inesperado aconteceu. Por favor, entre em contato com os administradores.');
+
     }
 
     public function dashboard()
@@ -51,4 +70,5 @@ class ReservationController extends Controller
 
         return view('dashboard', ['livros' => $books, 'reserva' => $reservations]);
     }
+    
 }
