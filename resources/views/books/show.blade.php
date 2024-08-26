@@ -4,20 +4,25 @@
     <div class="col-md-10 offset-md-1">
         <div class="row">
             <div class="col-md-4" id="img-container">
-                {{-- imagem da capa --}}
+                {{-- Imagem da capa --}}
                 <img src="/img/{{ $livro->image ? 'books/'.$livro->image : 'default-book-image.jpg' }}" alt="{{ $livro->title }}">
             </div>
             <div class="col-md-8" id="info-container">
                 <h1 class="book-title">{{ $livro->title }}</h1>
                 <p class="book-author"><i class="fa-solid fa-pen"></i> {{ $livro->author }}</p>
                 <p class="book-genre"><i class="fa-solid fa-comments"></i> {{ $livro->genre }}</p>
-                <p class="book-situation"><i class="fa-solid fa-lightbulb"></i> {{ $livro->situation }}
-                </p>
+                <p class="book-situation"><i class="fa-solid fa-lightbulb"></i> {{ $livro->situation }}</p>
                 <div class="button-book">
                     @if ($livro->situation == 'Disponível')
                         <a href="/livros/reserva/{{ $livro->id }}" class="btn btn-success">Realizar reserva</a>
                     @else
                         <a class="btn btn-danger" disabled>Indisponível</a>
+                        @if(auth()->user()->is_admin)
+                            <form action="/livros/devolver/{{ $livro->id }}" method="POST" style="display:inline;">
+                                @csrf
+                                <button type="submit" class="btn btn-warning">Devolver Livro</button>
+                            </form>
+                        @endif
                     @endif
                 </div>
             </div>
@@ -25,6 +30,5 @@
         <div class="row">
             <p class="book-synopsis"><i class="fa-regular fa-circle-question"></i> {{ $livro->synopsis }}</p>
         </div>
-
     </div>
 @endsection

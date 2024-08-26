@@ -70,5 +70,36 @@ class ReservationController extends Controller
 
         return view('dashboard', ['livros' => $books, 'reserva' => $reservations]);
     }
+    public function returnBook($id)
+{
+    $user = auth()->user();
+
+    // Verifica se o usuário é administrador
+    if (!$user->is_admin) {
+        return redirect('/dashboard')->with('msg-error', 'Apenas administradores podem realizar a devolução de livros.');
+    }
+
+    $reservation = Reservation::findOrFail($id);
+
+    // Verifica se a reserva existe e se o livro está realmente emprestado
+    if ($reservation) {
+        $book = Book::findOrFail($reservation->books_id);
+
+        if ($book->situation === 'Emprestado') {
+            // Atualiza o status do livro para "Disponível"
+            $book->update(['situation' => 'Disponível']);
+
+            // Remove a reserva
+            $reservation->delete();
+
+            return redirect('/dashboard')->with('msg-success', 'O livro foi devolvido com sucesso!');
+        } else {
+            return redirect('/dashboard')->with('msg-error', 'Este livro não está marcado como emprestado.');
+        }
+    } else {
+        return redirect('/dashboard')->with('msg-error', 'Reserva não encontrada.');
+    }
+}
+
     
 }
