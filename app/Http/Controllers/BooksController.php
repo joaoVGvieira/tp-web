@@ -48,4 +48,35 @@ class BooksController extends Controller
 
         return view('books.show', ['livro' => $book]);
     }
+    public function edit($id)
+    {
+        $book = Book::findOrFail($id);
+
+        return view('books.edit', ['livro' => $book]);
+    }
+    public function update(Request $request, $id)
+    {
+        $book = Book::findOrFail($id);
+
+        $book->title = $request->title;
+        $book->author = $request->author;
+        $book->genre = $request->genre;
+        $book->registration_number = $request->registration_number;
+        $book->synopsis = $request->synopsis;
+
+        if ($request->hasFile('image') && $request->file('image')->isValid()) {
+            $requestImage = $request->image;
+            $extension = $requestImage->extension();
+
+            $imageName = md5($requestImage->getClientOriginalName() . strtotime('now')) . '.' . $extension;
+            $requestImage->move(public_path('/img/books'), $imageName);
+
+            $book->image = $imageName;
+        }
+
+        $book->save();
+
+        return redirect('/livros')->with('msg-success', 'Livro atualizado com sucesso!');
+    }
+
 }

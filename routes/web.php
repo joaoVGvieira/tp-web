@@ -21,3 +21,5 @@ Route::get('/livros/reserva/{id}', [ReservationController::class, 'create'])->mi
 Route::post('/livros/reserva', [ReservationController::class, 'store'])->middleware('auth');
 Route::match(['get', 'post'], '/livros/devolver/{id}', [ReservationController::class, 'returnBook'])->name('books.return');
 Route::get('/test-return-book/{id}', [ReservationController::class, 'returnBook']);
+Route::get('/livros/{id}/edit', [BooksController::class, 'edit'])->name('books.edit');
+Route::put('/livros/{id}', [BooksController::class, 'update'])->name('books.update');

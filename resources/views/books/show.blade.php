@@ -23,7 +23,10 @@
                                 <button type="submit" class="btn btn-warning">Devolver Livro</button>
                             </form>
                         @endif
+                    @endif
 
+                    @if(auth()->user()->is_admin)
+                        <a href="/livros/{{ $livro->id }}/edit" class="btn btn-warning">Editar</a>
                     @endif
                 </div>
             </div>
