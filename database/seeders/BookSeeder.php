@@ -16,10 +16,10 @@ class BookSeeder extends Seeder
      */
     public function run()
     {
-        $booksTitle = array('O Pequeno Príncipe', 'A Odisseia', 'Laravel Para Ninjas', 'Harry Potter E O Cálice de Fogo', 'Só A Gente Sabe O Que Sente', 'Quem É Você, Alasca?');
-        $booksAuthor = array('Antoine de Saint-Exupéry', 'Homero', 'Ademir C. Gabardo', 'J. K. Rowling', 'Fred Elboni', 'John Green');
-        $booksGenre = array('Fábula', 'Épico', 'Técnico', 'Fantasia', 'Poemas', 'Romance');
-        $booksRegistrationNumber = array(87234, 84573, 92831, 17462, 31929, 84763);
+        $booksTitle = array('O Pequeno Príncipe', 'A Odisseia', 'Laravel Para Ninjas', 'Harry Potter E O Cálice de Fogo', 'Só A Gente Sabe O Que Sente', 'Quem É Você, Alasca?','O iluminado');
+        $booksAuthor = array('Antoine de Saint-Exupéry', 'Homero', 'Ademir C. Gabardo', 'J. K. Rowling', 'Fred Elboni', 'John Green',' Stephen King');
+        $booksGenre = array('Fábula', 'Épico', 'Técnico', 'Fantasia', 'Poemas', 'Romance', "Terror");
+        $booksRegistrationNumber = array(87234, 84573, 92831, 17462, 31929, 84763, 92831);
         $bookSynopis = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent rhoncus augue nec ante vulputate fermentum. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nullam laoreet massa nisl, et sagittis metus sagittis at. Curabitur id ipsum ac orci maximus gravida vitae ac mi. Sed consectetur, nulla vel sodales tempor, lorem augue maximus nunc, eget imperdiet ligula quam vitae metus. Vestibulum in metus est. Morbi vel lacus est. ";
 
         for ($i = 0; $i < count($booksTitle); $i++) {

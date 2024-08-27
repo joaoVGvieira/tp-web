@@ -43,11 +43,6 @@ DB_USERNAME=[seu usuario admin]
 DB_PASSWORD=[sua senha admin]
 ```
 
-tem que mudar aqui tbm:
-```
-MAIL_HOST=localhost
-
-```
 **4. Com as dependências corretamente instaladas e o arquivo de variáveis configuradas, é hora de "buildar" o Jetstream + Livewire para realizar a autenticação do projeto com npm:**
 ```
 npm install
