@@ -17,11 +17,28 @@
                         <a href="/livros/reserva/{{ $livro->id }}" class="btn btn-success">Realizar reserva</a>
                     @else
                         <a class="btn btn-danger" disabled>Indisponível</a>
+                        
                         @if(auth()->user()->is_admin)
                             <form action="/livros/devolver/{{ $livro->id }}" method="POST" style="display:inline;">
                                 @csrf
                                 <button type="submit" class="btn btn-warning">Devolver Livro</button>
                             </form>
+                        @endif
+
+                        @php
+                            $user = auth()->user();
+                            $isOnWaitlist = \App\Models\Waitlist::where('users_id', $user->id)
+                                ->where('books_id', $livro->id)
+                                ->exists();
+                        @endphp
+                        
+                        @if (!$isOnWaitlist && !auth()->user()->is_admin)
+                            <form action="{{ route('books.waitlist', $livro->id) }}" method="POST" style="display:inline;">
+                                @csrf
+                                <button type="submit" class="btn btn-info">Entrar na Fila de Espera</button>
+                            </form>
+                        @elseif ($isOnWaitlist)
+                            <a class="btn btn-secondary" disabled>Já na Fila de Espera</a>
                         @endif
                     @endif
 

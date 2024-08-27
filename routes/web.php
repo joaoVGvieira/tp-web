@@ -23,3 +23,4 @@ Route::match(['get', 'post'], '/livros/devolver/{id}', [ReservationController::c
 Route::get('/test-return-book/{id}', [ReservationController::class, 'returnBook']);
 Route::get('/livros/{id}/edit', [BooksController::class, 'edit'])->name('books.edit');
 Route::put('/livros/{id}', [BooksController::class, 'update'])->name('books.update');
+Route::post('/livros/waitlist/{id}', [ReservationController::class, 'addToWaitlist'])->name('books.waitlist');

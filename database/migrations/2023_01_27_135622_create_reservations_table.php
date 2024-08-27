@@ -16,10 +16,20 @@ return new class extends Migration
         Schema::create('reservations', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
-            $table->foreignId('users_id')->constrained();
-            $table->foreignId('books_id')->constrained();
+
+            // Usando colunas personalizadas
+            $table->unsignedBigInteger('users_id'); // Correto conforme o modelo
+            $table->unsignedBigInteger('books_id'); // Correto conforme o modelo
+
+            // Definindo a enum para o status da reserva
             $table->enum('situation', ['Atrasado', 'Devolvido', 'No prazo'])->default('No prazo');
+
+            // Data de devolução
             $table->date('return_date');
+
+            // Definindo chaves estrangeiras
+            $table->foreign('users_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('books_id')->references('id')->on('books')->onDelete('cascade');
         });
     }
 
@@ -33,3 +43,4 @@ return new class extends Migration
         Schema::dropIfExists('reservations');
     }
 };
+
