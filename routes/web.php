@@ -24,3 +24,5 @@ Route::get('/test-return-book/{id}', [ReservationController::class, 'returnBook'
 Route::get('/livros/{id}/edit', [BooksController::class, 'edit'])->name('books.edit');
 Route::put('/livros/{id}', [BooksController::class, 'update'])->name('books.update');
 Route::post('/livros/waitlist/{id}', [ReservationController::class, 'addToWaitlist'])->name('books.waitlist');
+Route::delete('/livros/{id}', [BooksController::class, 'destroy']);
+Route::delete('/livros/{id}', [App\Http\Controllers\BooksController::class, 'destroy'])->name('livros.destroy');

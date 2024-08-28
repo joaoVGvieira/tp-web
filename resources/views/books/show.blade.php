@@ -44,6 +44,11 @@
 
                     @if(auth()->user()->is_admin)
                         <a href="/livros/{{ $livro->id }}/edit" class="btn btn-warning">Editar</a>
+                        <form action="{{ route('livros.destroy', $livro->id) }}" method="POST" style="display:inline;">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger" onclick="return confirm('Tem certeza que deseja apagar este livro?')">Apagar</button>
+                        </form>
                     @endif
                 </div>
             </div>

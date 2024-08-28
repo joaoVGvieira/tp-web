@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Book;
+use Illuminate\Support\Facades\File; // Adicione esta linha
+
 
 class BooksController extends Controller
 {
@@ -77,6 +79,17 @@ class BooksController extends Controller
         $book->save();
 
         return redirect('/livros')->with('msg-success', 'Livro atualizado com sucesso!');
+    }
+
+    public function destroy($id)
+    {
+        $book = Book::findOrFail($id);
+
+        // Remove a imagem associada ao livro, se existir
+
+        $book->delete();
+
+        return redirect('/livros')->with('msg-success', 'Livro removido com sucesso!');
     }
 
 }
