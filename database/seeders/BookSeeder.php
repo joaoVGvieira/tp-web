@@ -67,7 +67,7 @@ class BookSeeder extends Seeder
                 'title' => 'O Iluminado',
                 'author' => 'Stephen King',
                 'genre' => 'Terror',
-                'registration_number' => 92831,
+                'registration_number' => 33831,
                 'synopsis' => 'Jack Torrance, um escritor em busca de inspiração, aceita o trabalho de zelador de inverno em um hotel isolado nas montanhas. Enquanto o inverno avança, forças sobrenaturais dentro do hotel começam a tomar conta de sua sanidade, colocando sua família em perigo.',
                 'image' => 'o_iluminado.jpg'
             ]
