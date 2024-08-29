@@ -14,7 +14,7 @@
                 <p class="book-situation"><i class="fa-solid fa-lightbulb"></i> {{ $livro->situation }}</p>
                 <div class="button-book">
                     @if ($livro->situation == 'Disponível')
-                        <a href="/livros/reserva/{{ $livro->id }}" class="btn btn-success">Realizar reserva</a>
+                        <a href="/livros/reserva/{{ $livro->id }}" class="btn btn-success">Realizar Emprestimo</a>
                     @else
                         <a class="btn btn-danger" disabled>Indisponível</a>
                         
@@ -35,10 +35,10 @@
                         @if (!$isOnWaitlist && !auth()->user()->is_admin)
                             <form action="{{ route('books.waitlist', $livro->id) }}" method="POST" style="display:inline;">
                                 @csrf
-                                <button type="submit" class="btn btn-info">Entrar na Fila de Espera</button>
+                                <button type="submit" class="btn btn-info">Fazer reserva</button>
                             </form>
                         @elseif ($isOnWaitlist)
-                            <a class="btn btn-secondary" disabled>Já na Fila de Espera</a>
+                            <a class="btn btn-secondary" disabled>Já na Fila do Emprestimo!</a>
                         @endif
                     @endif
 
