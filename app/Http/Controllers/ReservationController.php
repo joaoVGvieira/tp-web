@@ -71,75 +71,98 @@ class ReservationController extends Controller
 
         return view('dashboard', ['livros' => $books, 'reserva' => $reservations]);
     }
+
     public function returnBook($id)
-    {
-        $user = auth()->user();
-    
-        // Verifica se o usuário é administrador
-        if (!$user->is_admin) {
-            return redirect('/dashboard')->with('msg-error', 'Apenas administradores podem realizar a devolução de livros.');
-        }
-    
-        // Encontra a reserva pelo ID do livro
-        $reservation = Reservation::where('books_id', $id)->first();
-    
-        if ($reservation) {
-            $book = Book::findOrFail($reservation->books_id);
-    
-            // Atualiza o status do livro para "Disponível"
-            $book->update(['situation' => 'Disponível']);
-    
-            // Remove a reserva existente
-            $reservation->delete();
-    
-            // Verifica se há reservas na fila de espera
-            $nextReservation = Waitlist::where('books_id', $id)
-                                      ->orderBy('created_at', 'asc')
-                                      ->first();
-    
-            if ($nextReservation) {
-                // Atualiza o status do livro para "Emprestado"
-                $book->update(['situation' => 'Emprestado']);
-    
-                // Cria uma nova reserva para o próximo usuário na fila
-                $newReservation = new Reservation;
-                $newReservation->users_id = $nextReservation->users_id;
-                $newReservation->books_id = $id;
-    
-                // Calcula a nova data de devolução (7 dias a partir da data atual)
-                $currentDate = new DateTime();
-                $returnDate = clone $currentDate;
-                $returnDate->modify('+7 days');
-    
-                // Ajusta a data de devolução para a próxima segunda-feira, caso seja sábado ou domingo
-                $dayOfWeek = $returnDate->format('N');
-                if ($dayOfWeek == 6) {
-                    $returnDate->modify('+2 days');
-                } elseif ($dayOfWeek == 7) {
-                    $returnDate->modify('+1 day');
-                }
-    
-                $newReservation->return_date = $returnDate->format('Y-m-d');
-                $newReservation->save();
-    
-                // Remove o usuário da fila de espera
-                $nextReservation->delete();
-    
-                // Adiciona uma mensagem de aviso para o administrador
-                return redirect('/dashboard')
-                    ->with('msg-success', 'O livro foi devolvido com sucesso! A fila de espera foi atualizada.');
-            }
-    
-            return redirect('/dashboard')->with('msg-success', 'O livro foi devolvido com sucesso!');
-        } else {
-            return redirect('/dashboard')->with('msg-error', 'Reserva não encontrada.');
-        }
+{
+    $user = auth()->user();
+
+    // Verifica se o usuário é administrador
+    if (!$user->is_admin) {
+        return redirect('/dashboard')->with('msg-error', 'Apenas administradores podem realizar a devolução de livros.');
     }
-    
+
+    // Encontra a reserva pelo ID do livro
+    $reservation = Reservation::where('books_id', $id)->first();
+
+    if ($reservation) {
+        $book = Book::findOrFail($reservation->books_id);
+
+        // Calcula a multa, se houver
+        $currentDate = new DateTime();
+        $returnDate = new DateTime($reservation->return_date);
+        $fine = 0;
+
+        if ($currentDate > $returnDate) {
+            // Calcula o número de dias de atraso
+            $daysLate = $currentDate->diff($returnDate)->days;
+            $fine = $daysLate * 5; // Exemplo: R$ 5,00 por dia de atraso
+
+            // Armazena a multa na reserva
+            $reservation->fine = $fine;
+            $reservation->save();
+        }
+
+        // Atualiza o status do livro para "Disponível"
+        $book->update(['situation' => 'Disponível']);
+
+        // Remove a reserva existente
+        $reservation->delete();
+
+        // Verifica se há reservas na fila de espera
+        $nextReservation = Waitlist::where('books_id', $id)
+                                  ->orderBy('created_at', 'asc')
+                                  ->first();
+
+        if ($nextReservation) {
+            // Atualiza o status do livro para "Emprestado"
+            $book->update(['situation' => 'Emprestado']);
+
+            // Cria uma nova reserva para o próximo usuário na fila
+            $newReservation = new Reservation;
+            $newReservation->users_id = $nextReservation->users_id;
+            $newReservation->books_id = $id;
+
+            // Calcula a nova data de devolução (7 dias a partir da data atual)
+            $returnDate = clone $currentDate;
+            $returnDate->modify('+7 days');
+
+            // Ajusta a data de devolução para a próxima segunda-feira, caso seja sábado ou domingo
+            $dayOfWeek = $returnDate->format('N');
+            if ($dayOfWeek == 6) {
+                $returnDate->modify('+2 days');
+            } elseif ($dayOfWeek == 7) {
+                $returnDate->modify('+1 day');
+            }
+
+            $newReservation->return_date = $returnDate->format('Y-m-d');
+            $newReservation->save();
+
+            // Remove o usuário da fila de espera
+            $nextReservation->delete();
+
+            // Adiciona uma mensagem de aviso para o administrador
+            return redirect('/dashboard')
+                ->with('msg-success', 'O livro foi devolvido com sucesso! A fila de espera foi atualizada.');
+        }
+
+        return redirect('/dashboard')->with('msg-success', 'O livro foi devolvido com sucesso!');
+    } else {
+        return redirect('/dashboard')->with('msg-error', 'Reserva não encontrada.');
+    }
+}
 
     
-    
-    
+public function allReservations()
+{
+    // Obtém todas as reservas junto com o usuário e o livro relacionados
+    $reservations = Reservation::with('user', 'book')->get()
+        ->groupBy(function ($reservation) {
+            return $reservation->user->id . '-' . $reservation->book->id;
+        });
+
+    return view('reservation.all-reservation', ['reservations' => $reservations]);
+}
+ 
 
     public function waitlist()
 {

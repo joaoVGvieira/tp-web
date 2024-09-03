@@ -51,6 +51,7 @@ php artisan migrate
 ```
 **5. Com tudo corretamente instalado, é hora de popularmos o Banco de Dados com alguns usuários e livros.**
 ```
+php artisan db:seed --class=DBSeeder  
 ```
 
 **6. Agora so rodar**

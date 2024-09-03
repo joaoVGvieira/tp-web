@@ -34,8 +34,10 @@
         @auth
         @if (auth()->user()->is_admin == '1')
             <a class="nav-link" href="/livros/criar">Adicionar Livro</a>
+            <a class="nav-link" href="{{ url('/admin/reservations') }}">Painel de Controle</a>
+
         @endif
-            <a class="nav-link" href="/dashboard">{{ auth()->user()->is_admin == '0' ? 'Minhas Reservas' : 'Painel de Controle' }}</a>
+            <a class="nav-link" href="/dashboard">{{ auth()->user()->is_admin == '0' ? 'Minhas Reservas' : 'Minhas Reservas' }}</a>
             <form action="/logout" method="POST">
                 @csrf
                 <a class="nav-link" href="/dashboard"
