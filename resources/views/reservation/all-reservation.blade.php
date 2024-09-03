@@ -4,7 +4,7 @@
 @section('content')
 
     <div class="page-header">
-        <h1>Todas os emprestimos livros</h1>
+        <h1>Todos os emprestimos livros</h1>
     </div>
 
     <div class="dashboard-books-table">
