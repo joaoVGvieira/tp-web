@@ -11,7 +11,7 @@
         @if (count($livros) == 0)
             <p>Aparentemente não existem livros cadastrados.</p>
         @else
-            <p>Abaixo veja os livros disponíveis para serem alugados.</p>
+            <p>Abaixo veja os livros disponíveis para serem emprestados.</p>
             <table class="table table-hover">
                 <thead>
                     {{-- <th scope="col">#</th> --}}

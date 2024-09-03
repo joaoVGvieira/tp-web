@@ -4,14 +4,14 @@
 @section('content')
 
     <div class="page-header">
-        <h1>Todas as Reservas de Livros</h1>
+        <h1>Todas os emprestimos livros</h1>
     </div>
 
     <div class="dashboard-books-table">
         @if ($reservations->isEmpty())
-            <p>Atualmente não há reservas de livros.</p>
+            <p>Atualmente não há emprestimos de livros.</p>
         @else
-            <p>Abaixo estão todas as reservas de livros, incluindo informações sobre multas, se houver.</p>
+            <p>Abaixo estão todas os emprestimos de livros, incluindo informações sobre multas, se houver.</p>
             <table class="table table-hover">
                 <thead>
                     <tr>

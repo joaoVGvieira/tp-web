@@ -30,14 +30,15 @@
             <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
                 <div class="navbar-nav">
                     <a class="nav-link" href="/">Home</a>
-                    <a class="nav-link" href="/livros">Livros</a>
+                   
         @auth
+        <a class="nav-link" href="/livros">Livros</a>
         @if (auth()->user()->is_admin == '1')
             <a class="nav-link" href="/livros/criar">Adicionar Livro</a>
             <a class="nav-link" href="{{ url('/admin/reservations') }}">Painel de Controle</a>
 
         @endif
-            <a class="nav-link" href="/dashboard">{{ auth()->user()->is_admin == '0' ? 'Minhas Reservas' : 'Minhas Reservas' }}</a>
+            <a class="nav-link" href="/dashboard">{{ auth()->user()->is_admin == '0' ? 'Meus Emprestimos' : 'Meus Emprestimos' }}</a>
             <form action="/logout" method="POST">
                 @csrf
                 <a class="nav-link" href="/dashboard"

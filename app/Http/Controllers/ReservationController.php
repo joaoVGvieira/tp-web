@@ -89,6 +89,8 @@ class ReservationController extends Controller
 
         // Calcula a multa, se houver
         $currentDate = new DateTime();
+      
+
         $returnDate = new DateTime($reservation->return_date);
         $fine = 0;
 
