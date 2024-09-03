@@ -12,45 +12,53 @@
                 <p class="book-author"><i class="fa-solid fa-pen"></i> {{ $livro->author }}</p>
                 <p class="book-genre"><i class="fa-solid fa-comments"></i> {{ $livro->genre }}</p>
                 <p class="book-situation"><i class="fa-solid fa-lightbulb"></i> {{ $livro->situation }}</p>
-                <div class="button-book">
-                    @if ($livro->situation == 'Disponível')
-                        <a href="/livros/reserva/{{ $livro->id }}" class="btn btn-success">Realizar Emprestimo</a>
-                    @else
-                        <a class="btn btn-danger" disabled>Indisponível</a>
-                        
+
+                @if (auth()->user()->pending_fine > 0)
+                    <div class="alert alert-warning">
+                        Você tem uma multa pendente de R$ {{ number_format(auth()->user()->pending_fine, 2, ',', '.') }}.
+                        <a href="{{ route('pagar-multa') }}" class="btn btn-primary">Pagar Multa</a>
+                    </div>
+                @else
+                    <div class="button-book">
+                        @if ($livro->situation == 'Disponível')
+                            <a href="/livros/reserva/{{ $livro->id }}" class="btn btn-success">Realizar Empréstimo</a>
+                        @else
+                            <a class="btn btn-danger" disabled>Indisponível</a>
+                            
+                            @if(auth()->user()->is_admin)
+                                <form action="/livros/devolver/{{ $livro->id }}" method="POST" style="display:inline;">
+                                    @csrf
+                                    <button type="submit" class="btn btn-warning">Devolver Livro</button>
+                                </form>
+                            @endif
+
+                            @php
+                                $user = auth()->user();
+                                $isOnWaitlist = \App\Models\Waitlist::where('users_id', $user->id)
+                                    ->where('books_id', $livro->id)
+                                    ->exists();
+                            @endphp
+                            
+                            @if (!$isOnWaitlist && !auth()->user()->is_admin)
+                                <form action="{{ route('books.waitlist', $livro->id) }}" method="POST" style="display:inline;">
+                                    @csrf
+                                    <button type="submit" class="btn btn-info">Fazer reserva</button>
+                                </form>
+                            @elseif ($isOnWaitlist)
+                                <a class="btn btn-secondary" disabled>Já na Fila do Empréstimo!</a>
+                            @endif
+                        @endif
+
                         @if(auth()->user()->is_admin)
-                            <form action="/livros/devolver/{{ $livro->id }}" method="POST" style="display:inline;">
+                            <a href="/livros/{{ $livro->id }}/edit" class="btn btn-warning">Editar</a>
+                            <form action="{{ route('livros.destroy', $livro->id) }}" method="POST" style="display:inline;">
                                 @csrf
-                                <button type="submit" class="btn btn-warning">Devolver Livro</button>
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-danger" onclick="return confirm('Tem certeza que deseja apagar este livro?')">Apagar</button>
                             </form>
                         @endif
-
-                        @php
-                            $user = auth()->user();
-                            $isOnWaitlist = \App\Models\Waitlist::where('users_id', $user->id)
-                                ->where('books_id', $livro->id)
-                                ->exists();
-                        @endphp
-                        
-                        @if (!$isOnWaitlist && !auth()->user()->is_admin)
-                            <form action="{{ route('books.waitlist', $livro->id) }}" method="POST" style="display:inline;">
-                                @csrf
-                                <button type="submit" class="btn btn-info">Fazer reserva</button>
-                            </form>
-                        @elseif ($isOnWaitlist)
-                            <a class="btn btn-secondary" disabled>Já na Fila do Emprestimo!</a>
-                        @endif
-                    @endif
-
-                    @if(auth()->user()->is_admin)
-                        <a href="/livros/{{ $livro->id }}/edit" class="btn btn-warning">Editar</a>
-                        <form action="{{ route('livros.destroy', $livro->id) }}" method="POST" style="display:inline;">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-danger" onclick="return confirm('Tem certeza que deseja apagar este livro?')">Apagar</button>
-                        </form>
-                    @endif
-                </div>
+                    </div>
+                @endif
             </div>
         </div>
         <div class="row">

@@ -27,7 +27,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'pending_fine', // Adicione este campo
     ];
+    
 
     /**
      * The attributes that should be hidden for serialization.

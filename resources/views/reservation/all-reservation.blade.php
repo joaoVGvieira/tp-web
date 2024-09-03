@@ -4,14 +4,14 @@
 @section('content')
 
     <div class="page-header">
-        <h1>Todos os emprestimos livros</h1>
+        <h1>Painel de Controle</h1>
     </div>
 
     <div class="dashboard-books-table">
         @if ($reservations->isEmpty())
-            <p>Atualmente não há emprestimos de livros.</p>
+            <p>Atualmente não há empréstimos de livros.</p>
         @else
-            <p>Abaixo estão todas os emprestimos de livros, incluindo informações sobre multas, se houver.</p>
+            <p>Abaixo estão todos os empréstimos de livros, incluindo informações sobre multas, se houver.</p>
             <table class="table table-hover">
                 <thead>
                     <tr>
@@ -19,6 +19,7 @@
                         <th scope="col">Livro</th>
                         <th scope="col">Data de Devolução</th>
                         <th scope="col">Multa</th>
+                        <th scope="col">Ver mais</th> <!-- New column for "View More" -->
                     </tr>
                 </thead>
                 <tbody>
@@ -38,6 +39,8 @@
                                     -
                                 @endif
                             </td>
+                            <!-- New cell for "View More" -->
+                            <td><a href="/livros/{{ $first->book->id }}"><i class="fa-regular fa-eye"></i></a></td>
                         </tr>
                     @endforeach
                 </tbody>

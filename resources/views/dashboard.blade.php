@@ -6,7 +6,7 @@
 
     <div class="page-header">
         @if (auth()->user()->is_admin == '1')
-            <h1>Painel de Controle</h1>
+            <h1>Meus Emprestimos</h1>
         @else
             <h1>Meus Emprestimos</h1>
         @endif

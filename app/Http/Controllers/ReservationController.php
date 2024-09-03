@@ -13,9 +13,15 @@ class ReservationController extends Controller
     public function create($id)
     {
         $user = auth()->user();
+        
+        if ($user->pending_fine > 0) {
+            return redirect('/dashboard')->with('msg-error', 'Você tem uma multa pendente. Pague a multa antes de fazer uma nova reserva.');
+        }
+    
         $book = Book::findOrFail($id);
         return view('reservation.create', ['usuario' => $user, 'livro' => $book]);
     }
+    
 
     public function store(Request $request)
     {
@@ -58,6 +64,33 @@ class ReservationController extends Controller
 
     }
 
+    public function payFine()
+{
+    $user = auth()->user();
+
+    if ($user->pending_fine > 0) {
+        // Simulação de pagamento
+        $this->simulatePayment($user);
+
+        // Após o pagamento, zera o valor da multa pendente
+        $user->pending_fine = 0;
+        $user->save();
+
+        return redirect('/dashboard')->with('msg-success', 'Sua multa foi paga com sucesso!');
+    } else {
+        return redirect('/dashboard')->with('msg-info', 'Não há multas pendentes para pagar.');
+    }
+}
+
+private function simulatePayment($user)
+{
+    // Aqui você pode adicionar lógica de simulação de pagamento, como uma espera ou registro de logs
+    sleep(2); // Simulando um atraso no processamento do pagamento
+
+    // Log para simulação (opcional)
+    \Log::info('Pagamento simulado para o usuário: ' . $user->id);
+}
+
     public function dashboard()
     {
         $user = auth()->user();
@@ -73,86 +106,45 @@ class ReservationController extends Controller
     }
 
     public function returnBook($id)
-{
-    $user = auth()->user();
-
-    // Verifica se o usuário é administrador
-    if (!$user->is_admin) {
-        return redirect('/dashboard')->with('msg-error', 'Apenas administradores podem realizar a devolução de livros.');
-    }
-
-    // Encontra a reserva pelo ID do livro
-    $reservation = Reservation::where('books_id', $id)->first();
-
-    if ($reservation) {
-        $book = Book::findOrFail($reservation->books_id);
-
-        // Calcula a multa, se houver
-        $currentDate = new DateTime();
-      
-
-        $returnDate = new DateTime($reservation->return_date);
-        $fine = 0;
-
-        if ($currentDate > $returnDate) {
-            // Calcula o número de dias de atraso
-            $daysLate = $currentDate->diff($returnDate)->days;
-            $fine = $daysLate * 5; // Exemplo: R$ 5,00 por dia de atraso
-
-            // Armazena a multa na reserva
-            $reservation->fine = $fine;
-            $reservation->save();
+    {
+        $user = auth()->user();
+    
+        if (!$user->is_admin) {
+            return redirect('/dashboard')->with('msg-error', 'Apenas administradores podem realizar a devolução de livros.');
         }
-
-        // Atualiza o status do livro para "Disponível"
-        $book->update(['situation' => 'Disponível']);
-
-        // Remove a reserva existente
-        $reservation->delete();
-
-        // Verifica se há reservas na fila de espera
-        $nextReservation = Waitlist::where('books_id', $id)
-                                  ->orderBy('created_at', 'asc')
-                                  ->first();
-
-        if ($nextReservation) {
-            // Atualiza o status do livro para "Emprestado"
-            $book->update(['situation' => 'Emprestado']);
-
-            // Cria uma nova reserva para o próximo usuário na fila
-            $newReservation = new Reservation;
-            $newReservation->users_id = $nextReservation->users_id;
-            $newReservation->books_id = $id;
-
-            // Calcula a nova data de devolução (7 dias a partir da data atual)
-            $returnDate = clone $currentDate;
-            $returnDate->modify('+7 days');
-
-            // Ajusta a data de devolução para a próxima segunda-feira, caso seja sábado ou domingo
-            $dayOfWeek = $returnDate->format('N');
-            if ($dayOfWeek == 6) {
-                $returnDate->modify('+2 days');
-            } elseif ($dayOfWeek == 7) {
-                $returnDate->modify('+1 day');
+    
+        $reservation = Reservation::where('books_id', $id)->first();
+    
+        if ($reservation) {
+            $book = Book::findOrFail($reservation->books_id);
+            $currentDate = new DateTime();
+            $returnDate = new DateTime($reservation->return_date);
+            $fine = 0;
+    
+            if ($currentDate > $returnDate) {
+                $daysLate = $returnDate->diff($currentDate)->days;
+                $fine = $daysLate * 5; // Exemplo: R$ 5,00 por dia de atraso
+    
+                $reservation->fine = $fine;
+                $reservation->save();
+    
+                // Adiciona a multa ao usuário
+                $reservationUser = $reservation->user; // Carrega o usuário associado à reserva
+                $reservationUser->pending_fine += $fine;
+                $reservationUser->save();
             }
-
-            $newReservation->return_date = $returnDate->format('Y-m-d');
-            $newReservation->save();
-
-            // Remove o usuário da fila de espera
-            $nextReservation->delete();
-
-            // Adiciona uma mensagem de aviso para o administrador
-            return redirect('/dashboard')
-                ->with('msg-success', 'O livro foi devolvido com sucesso! A fila de espera foi atualizada.');
+    
+            $book->update(['situation' => 'Disponível']);
+            $reservation->delete();
+    
+            // Verificar fila de espera e outras operações...
+    
+            return redirect('/dashboard')->with('msg-success', 'O livro foi devolvido com sucesso!');
+        } else {
+            return redirect('/dashboard')->with('msg-error', 'Reserva não encontrada.');
         }
-
-        return redirect('/dashboard')->with('msg-success', 'O livro foi devolvido com sucesso!');
-    } else {
-        return redirect('/dashboard')->with('msg-error', 'Reserva não encontrada.');
     }
-}
-
+    
     
 public function allReservations()
 {

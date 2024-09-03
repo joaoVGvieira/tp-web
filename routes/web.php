@@ -28,3 +28,4 @@ Route::delete('/livros/{id}', [BooksController::class, 'destroy']);
 Route::delete('/livros/{id}', [App\Http\Controllers\BooksController::class, 'destroy'])->name('livros.destroy');
 Route::get('/reservations', [ReservationController::class, 'adminReservations'])->middleware('auth', 'admin');
 Route::get('/admin/reservations', [ReservationController::class, 'allReservations'])->middleware('auth');
+Route::get('/pagar-multa', [ReservationController::class, 'payFine'])->name('pagar-multa');
