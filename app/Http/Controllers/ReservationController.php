@@ -85,7 +85,7 @@ class ReservationController extends Controller
 private function simulatePayment($user)
 {
     // Aqui você pode adicionar lógica de simulação de pagamento, como uma espera ou registro de logs
-    sleep(2); // Simulando um atraso no processamento do pagamento
+    sleep(1); // Simulando um atraso no processamento do pagamento
 
     // Log para simulação (opcional)
     \Log::info('Pagamento simulado para o usuário: ' . $user->id);
