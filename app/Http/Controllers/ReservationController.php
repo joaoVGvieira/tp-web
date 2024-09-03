@@ -105,6 +105,9 @@ private function simulatePayment($user)
         return view('dashboard', ['livros' => $books, 'reserva' => $reservations]);
     }
 
+  
+
+
     public function returnBook($id)
     {
         $user = auth()->user();
@@ -123,33 +126,68 @@ private function simulatePayment($user)
     
             if ($currentDate > $returnDate) {
                 $daysLate = $returnDate->diff($currentDate)->days;
-                $fine = $daysLate * 5; // Exemplo: R$ 5,00 por dia de atraso
+                $fine = $daysLate * 5; // Example: R$ 5.00 per day of delay
     
                 $reservation->fine = $fine;
                 $reservation->save();
     
-                // Adiciona a multa ao usuário
-                $reservationUser = $reservation->user; // Carrega o usuário associado à reserva
+                // Add the fine to the user's pending fines
+                $reservationUser = $reservation->user; // Load the user associated with the reservation
                 $reservationUser->pending_fine += $fine;
                 $reservationUser->save();
             }
-            
-            /* Exemplo de multa fixa
-            $fine = 2.50;
+
+            // exemplo de multa fixa
+            /*$fine = 14.00;
             $reservationUser = $reservation->user; // Carrega o usuário associado à reserva
             $reservationUser->pending_fine += $fine;
             $reservationUser->save();*/
     
-            $book->update(['situation' => 'Disponível']);
+            // Delete the current reservation
             $reservation->delete();
     
-            // Verificar fila de espera e outras operações...
+            // Check if there is a user in the waitlist
+            $nextInLine = Waitlist::where('books_id', $id)->orderBy('created_at')->first();
     
-            return redirect('/dashboard')->with('msg-success', 'O livro foi devolvido com sucesso!');
+            if ($nextInLine) {
+                // Automatically create a reservation for the next user in the waitlist
+                $newReservation = new Reservation();
+                $newReservation->users_id = $nextInLine->users_id;
+                $newReservation->books_id = $id;
+    
+                // Set the return date for 7 days from now
+                $newReturnDate = new DateTime();
+                $newReturnDate->modify('+7 days');
+    
+                // Adjust return date if it falls on a weekend
+                $dayOfWeek = $newReturnDate->format('N');
+                if ($dayOfWeek == 6) {
+                    $newReturnDate->modify('+2 days'); // Move to Monday if Saturday
+                } elseif ($dayOfWeek == 7) {
+                    $newReturnDate->modify('+1 day'); // Move to Monday if Sunday
+                }
+    
+                $newReservation->return_date = $newReturnDate->format('Y-m-d');
+                $newReservation->save();
+    
+                // Update the book status to "Emprestado" (Borrowed)
+                $book->update(['situation' => 'Emprestado']);
+    
+                // Remove the user from the waitlist
+                $nextInLine->delete();
+    
+                return redirect('/dashboard')->with('msg-success', 'O livro foi devolvido e reservado para o próximo usuário na fila de espera!');
+            } else {
+                // If no one is on the waitlist, set the book status to available
+                $book->update(['situation' => 'Disponível']);
+                return redirect('/dashboard')->with('msg-success', 'O livro foi devolvido com sucesso e está disponível para empréstimo!');
+            }
         } else {
             return redirect('/dashboard')->with('msg-error', 'Reserva não encontrada.');
         }
     }
+    
+    
     
     
 public function allReservations()
