@@ -133,6 +133,12 @@ private function simulatePayment($user)
                 $reservationUser->pending_fine += $fine;
                 $reservationUser->save();
             }
+            
+            /* Exemplo de multa fixa
+            $fine = 2.50;
+            $reservationUser = $reservation->user; // Carrega o usuário associado à reserva
+            $reservationUser->pending_fine += $fine;
+            $reservationUser->save();*/
     
             $book->update(['situation' => 'Disponível']);
             $reservation->delete();
